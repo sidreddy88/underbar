@@ -38,6 +38,7 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if (n > array.length) return array;
     return n === undefined ? array[array.length - 1] : array.slice(array.length - n);
   };
 
@@ -87,13 +88,13 @@
   _.filter = function(collection, test) {
      var answerArray = [];
      
-     each (collection, function (value) {
+      _.each (collection, function (value) {
             
             if (test(value)){
              answerArray.push (value);
             }
      
-     });
+       });
      return answerArray;
   };
 
@@ -101,12 +102,44 @@
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+    // I use filter to get the elements which pass the truth test and then grab the remaining 
+    //elements from the passed in array
+    
+    var answerArray = [];
+    
+    var elementsContained = _.filter (collection, function (value) {
+    
+          return test (value);
+    });
+    
+    for (var i = 0;i < collection.length; i++) {
+      var found = _.indexOf (elementsContained, collection[i]);
+      if (found === -1) {
+         answerArray.push (collection[i]);
+      }
+    
+    }
+    return answerArray;
+    
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
-  };
-
+  
+  if (!Array.isArray(array))  {
+      return null;
+  }
+  
+    var answerArray = [];
+    
+     _.each (array , function (value) {
+         var found = _.indexOf(answerArray,value);
+        if (found === -1) answerArray.push(value);
+    });
+     
+     return answerArray;
+    
+};
 
   // Return the results of applying an iterator to each element.
   _.map = function(collection, iterator) {
@@ -116,9 +149,9 @@
     
     var anwerArray = [];
     
-    each (collection, function (value, index, list) {
+     _.each (collection, function (value, index, list) {
      anwerArray.push (iterator (value, index, list));
-   });
+     });
     return anwerArray;
   };
 
@@ -161,16 +194,34 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+  
    if (collection === null) return collection;
-   var accumulator;
+   var mine;
+   var useStartingValueAsAccumulator;
    
-   each (collection, function (value, index ,list) {
+   if (arguments.length > 2) {
+     mine = accumulator;
+     useStartingValueAsAccumulator = false;  
+  } else {
+     useStartingValueAsAccumulator = true;
+     mine = collection[0];
+  }
+    
+    _.each (collection, function (value, index ,list) {
+      if (useStartingValueAsAccumulator) {
       
-   accumulator =  iterator ( collection, value, index, list);
-       
-  });
-   return accumulator;
-  };
+           if (value !== list [0]) {
+           mine =  iterator ( mine, value, index, list);
+           }
+      
+    } else {
+           mine =  iterator ( mine, value, index, list);
+      }
+     
+    });
+   
+   return mine;
+ };
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
