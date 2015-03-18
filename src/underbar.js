@@ -391,7 +391,7 @@
      for (var i  = 1; i < arguments.length; i++) {
          hash += arguments[0];
      }
-    if (store [hash]) {
+    if (store[hash]) {
        return store[hash];
     } else {
       var result = func.apply(this, arguments);
@@ -416,9 +416,7 @@
     setTimeout(func(a,b),wait);
    } else {
     setTimeout(func,wait);
-   }
-  
-    
+   }   
   };
 
 
@@ -440,7 +438,7 @@
     var numbersArray = [];
     
     // first step is to create an array with random numbers (array indices)
-    //second step is to create an array which has the same order as the numbers array
+    //second step is to create an array which has the same order as the numbers in the numbers array
     
     while (numbersArray.length !== array.length) {
      var number = Math.floor(Math.random() * (max - min + 1)) + min;
