@@ -147,12 +147,12 @@
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
     
-    var anwerArray = [];
+    var answerArray = [];
     
      _.each (collection, function (value, index, list) {
-     anwerArray.push (iterator (value, index, list));
+     answerArray.push (iterator (value, index, list));
      });
-    return anwerArray;
+    return answerArray;
   };
 
   /*
@@ -238,13 +238,47 @@
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
+  
+  // if no callback is provided
+   if (arguments.length < 2) {
+     for (var i = 0; i < collection.length; i++) {
+        if (collection[i] === false) {
+            return false;
+        }
+     } return true;
+   }
+    
     // TIP: Try re-using reduce() here.
+    return _.reduce(collection, function(itemPassesTest, item) {
+      if (!itemPassesTest) {
+       return false;
+    }
+    
+     if (iterator(item)) {
+         return true;
+     } else 
+         return false;
+
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    
+    
+    if (arguments.length < 2) {
+     for (var i = 0; i < collection.length; i++) {
+        if (collection[i] === true) {
+            return true;
+        }
+     } return false;
+   }
+    
+    return !(_.every(collection, function(v) {
+        return !iterator(v);
+    }));
   };
 
 
@@ -267,11 +301,46 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+      
+    for (var i = 1; i < arguments.length; i++) {
+        var item = arguments[i];;
+         for (var key in item) {
+          obj[key] = item[key];
+   
+       }
+    }
+    
+   return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+  
+  //array of keys in the passed in objects. This is in order in which the objects are passed in
+  var arrayOfKeys = [];
+  
+  var count = 0;
+  //need to figure out if obj is empty
+  for (var key in obj) {
+    count++;
+  }
+  
+   for (var i = 1; i < arguments.length; i++) {
+        var item = arguments[i];;
+         for (var key in item) {
+           if (_.contains (obj, key) || count === 0 && !_.contains ( arrayOfKeys, key)) {
+              
+          obj[key] = item[key];
+   
+        
+    }
+        arrayOfKeys.push (key);
+      }
+    }
+    
+   return obj;
+  
   };
 
 
@@ -315,6 +384,22 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+   
+  var store = {};
+   var memo = function () {
+     var hash = arguments[0];
+     for (var i  = 1; i < arguments.length; i++) {
+         hash += arguments[0];
+     }
+    if (store [hash]) {
+       return store[hash];
+    } else {
+      var result = func.apply(this, arguments);
+       store [hash] = result;
+       return result;
+    }
+   };
+   return memo;
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -324,6 +409,16 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+  
+   if (arguments.length > 2) {
+    var a = arguments[2];
+    var b = arguments [3];
+    setTimeout(func(a,b),wait);
+   } else {
+    setTimeout(func,wait);
+   }
+  
+    
   };
 
 
@@ -338,8 +433,35 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
-  };
+  
+    var max = array.length - 1;
+    var min = 0;
+   
+    var numbersArray = [];
+    
+    // first step is to create an array with random numbers (array indices)
+    //second step is to create an array which has the same order as the numbers array
+    
+    while (numbersArray.length !== array.length) {
+     var number = Math.floor(Math.random() * (max - min + 1)) + min;
+     
+       if (!_.contains ( numbersArray, number)) {
+         numbersArray.push (number);
+       }
+    }
+  
+    var count = 0;
+    var answerArray = [];
+    
+    while (count !== array.length) {
+    answerArray.push (array[numbersArray[count]]);
+    count++;
+    }
+    
+     return answerArray;
+    };
 
+    
 
   /**
    * EXTRA CREDIT
